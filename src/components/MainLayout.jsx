@@ -7,34 +7,38 @@ import BoardView from './BoardView'
 import PlannerView from './PlannerView'
 import ReportView from './ReportView'
 import InboxView from './InboxView'
+import SprintView from './SprintView'
+import ChatView from './ChatView'
+import FinanceView from './FinanceView'
 import ProjectPage from '../pages/ProjectPage'
 import AdminPage from '../pages/AdminPage'
 
 export default function MainLayout() {
   const { user } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab]     = useState(
+  const [activeTab, setActiveTab] = useState(
     () => localStorage.getItem('pms_active_tab') || 'projects'
   )
   const [selectedProject, setSelectedProject] = useState(() => {
     try {
-      const saved = localStorage.getItem('pms_selected_project')
-      return saved ? JSON.parse(saved) : null
+      const s = localStorage.getItem('pms_selected_project')
+      return s ? JSON.parse(s) : null
     } catch { return null }
   })
 
   const handleSelectProject = (project) => {
     setSelectedProject(project)
     localStorage.setItem('pms_selected_project', JSON.stringify(project))
-    handleSetActiveTab('board')
+    handleSetTab('board')
   }
 
-  const handleBackToProjects = () => handleSetActiveTab('projects')
-
-  const handleSetActiveTab = (tab) => {
+  const handleSetTab = (tab) => {
     setActiveTab(tab)
     localStorage.setItem('pms_active_tab', tab)
+    setSidebarOpen(false)
   }
+
+  const projectId = selectedProject?._id
 
   return (
     <div className="app">
@@ -48,9 +52,9 @@ export default function MainLayout() {
         <Sidebar
           open={sidebarOpen}
           activeTab={activeTab}
-          setActiveTab={handleSetActiveTab}
+          setActiveTab={handleSetTab}
           selectedProject={selectedProject}
-          onSelectProject={() => handleSetActiveTab('projects')}
+          onSelectProject={() => handleSetTab('projects')}
           isAdmin={user?.role === 'admin'}
         />
 
@@ -58,24 +62,41 @@ export default function MainLayout() {
           {activeTab === 'projects' && (
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
+
           {activeTab === 'board' && selectedProject && (
             <BoardView
-              projectId={selectedProject._id}
+              projectId={projectId}
               projectName={selectedProject.name}
-              onBackToProjects={handleBackToProjects}
+              onBackToProjects={() => handleSetTab('projects')}
             />
           )}
           {activeTab === 'board' && !selectedProject && (
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
+
+          {activeTab === 'sprint' && (
+            <SprintView projectId={projectId} />
+          )}
+
           {activeTab === 'planner' && <PlannerView />}
-          {activeTab === 'report'  && <ReportView />}
+          {activeTab === 'report'  && <ReportView projectId={projectId} />}
           {activeTab === 'inbox'   && <InboxView />}
-          {activeTab === 'admin'   && user?.role === 'admin' && <AdminPage />}
+
+          {activeTab === 'chat' && (
+            <ChatView projectId={projectId} />
+          )}
+
+          {activeTab === 'finance' && (
+            <FinanceView projectId={projectId} />
+          )}
+
+          {activeTab === 'admin' && user?.role === 'admin' && (
+            <AdminPage />
+          )}
         </main>
       </div>
 
-      <TabBar activeTab={activeTab} setActiveTab={handleSetActiveTab} />
+      <TabBar activeTab={activeTab} setActiveTab={handleSetTab} />
     </div>
   )
 }

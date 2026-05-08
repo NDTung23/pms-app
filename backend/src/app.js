@@ -9,8 +9,8 @@ const app = express()
 
 app.use(helmet())
 app.use(cors({ origin: CLIENT_URL, credentials: true }))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use(morgan('dev'))
 
 // ── Routes ──
@@ -23,6 +23,10 @@ app.use('/api/cards',         require('./routes/card.routes'))
 app.use('/api/comments',      require('./routes/comment.routes'))
 app.use('/api/notifications', require('./routes/notification.routes'))
 app.use('/api/reports',       require('./routes/report.routes'))
+app.use('/api/sprints',       require('./routes/sprint.routes'))    // UC15, UC16
+app.use('/api/finance',       require('./routes/finance.routes'))   // UC26-30
+app.use('/api/chat',          require('./routes/chat.routes'))      // UC25
+app.use('/api/audit-logs',    require('./routes/auditlog.routes'))  // UC37
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'PMS API đang chạy 🚀' })
