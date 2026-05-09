@@ -8,6 +8,6 @@ router.get('/overview',   getOverview)
 router.get('/task-stats', getTaskStats)
 router.get('/budget',     getBudgetReport)
 router.get('/planner',    getPlannerCards)
-router.get('/progress',   getProjectProgress)  // UC14
+router.get('/progress',   getProjectProgress)
 
 module.exports = router

@@ -1,7 +1,6 @@
 const AuditLog = require('../models/AuditLog')
 const { success } = require('../utils/response')
 
-// UC37: Lấy audit logs (admin)
 const getLogs = async (req, res, next) => {
   try {
     const { resource, limit = 100, page = 1 } = req.query
@@ -19,7 +18,6 @@ const getLogs = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// Ghi log (dùng nội bộ)
 const log = async ({ userId, action, resource, resourceId, detail, ip, oldValue, newValue }) => {
   try {
     await AuditLog.create({ user: userId, action, resource, resourceId, detail, ip, oldValue, newValue })

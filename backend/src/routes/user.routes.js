@@ -1,6 +1,7 @@
-const express = require('express')
-const router  = express.Router()
-const User    = require('../models/User')
+const express    = require('express')
+const router     = express.Router()
+const User       = require('../models/User')
+const AuditLog   = require('../models/AuditLog')
 const { protect }   = require('../middlewares/auth.middleware')
 const { authorize } = require('../middlewares/role.middleware')
 const { success, error } = require('../utils/response')
@@ -18,22 +19,31 @@ router.get('/search', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-// Lấy danh sách tất cả user — chỉ Admin
-router.get('/', authorize('admin'), async (req, res, next) => {
+// UC9: Lấy danh sách tất cả user kèm hoạt động — Admin & PM
+router.get('/', authorize('admin', 'pm'), async (req, res, next) => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 })
     return success(res, users)
   } catch (err) { next(err) }
 })
 
-// Đổi role — chỉ Admin
+// UC9: Lịch sử hoạt động của một user — Admin & PM
+router.get('/:id/activity', authorize('admin', 'pm'), async (req, res, next) => {
+  try {
+    const logs = await AuditLog.find({ user: req.params.id })
+      .sort({ createdAt: -1 })
+      .limit(50)
+    return success(res, logs)
+  } catch (err) { next(err) }
+})
+
+// UC7: Đổi role — chỉ Admin
 router.patch('/:id/role', authorize('admin'), async (req, res, next) => {
   try {
     const { role } = req.body
     if (!['admin', 'pm', 'member'].includes(role)) {
       return error(res, 'Role không hợp lệ', 400)
     }
-    // Không cho đổi role của chính mình
     if (req.params.id === req.user._id.toString()) {
       return error(res, 'Không thể đổi role của chính mình', 400)
     }
@@ -45,7 +55,7 @@ router.patch('/:id/role', authorize('admin'), async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-// Khoá / mở khoá tài khoản — chỉ Admin
+// UC8: Khoá / mở khoá tài khoản — chỉ Admin
 router.patch('/:id/toggle-active', authorize('admin'), async (req, res, next) => {
   try {
     if (req.params.id === req.user._id.toString()) {

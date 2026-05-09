@@ -11,12 +11,12 @@ import SprintView from './SprintView'
 import ChatView from './ChatView'
 import FinanceView from './FinanceView'
 import ProjectPage from '../pages/ProjectPage'
-import AdminPage from '../pages/AdminPage'
+import AdminPage from './AdminPage'
 
 export default function MainLayout() {
   const { user } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(
+  const [activeTab, setActiveTab]     = useState(
     () => localStorage.getItem('pms_active_tab') || 'projects'
   )
   const [selectedProject, setSelectedProject] = useState(() => {
@@ -46,7 +46,11 @@ export default function MainLayout() {
       <div className="orb orb-2" />
       <div className="orb orb-3" />
 
-      <Navbar onMenuClick={() => setSidebarOpen(o => !o)} />
+      <Navbar
+        onMenuClick={() => setSidebarOpen(o => !o)}
+        onCreateProject={() => handleSetTab('projects')}
+        onTabChange={handleSetTab}
+      />
 
       <div className="app-body">
         <Sidebar
@@ -63,36 +67,23 @@ export default function MainLayout() {
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
 
-          {activeTab === 'board' && selectedProject && (
+          {activeTab === 'board' && selectedProject ? (
             <BoardView
               projectId={projectId}
               projectName={selectedProject.name}
               onBackToProjects={() => handleSetTab('projects')}
             />
-          )}
-          {activeTab === 'board' && !selectedProject && (
+          ) : activeTab === 'board' && !selectedProject && (
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
 
-          {activeTab === 'sprint' && (
-            <SprintView projectId={projectId} />
-          )}
-
-          {activeTab === 'planner' && <PlannerView />}
-          {activeTab === 'report'  && <ReportView projectId={projectId} />}
-          {activeTab === 'inbox'   && <InboxView />}
-
-          {activeTab === 'chat' && (
-            <ChatView projectId={projectId} />
-          )}
-
-          {activeTab === 'finance' && (
-            <FinanceView projectId={projectId} />
-          )}
-
-          {activeTab === 'admin' && user?.role === 'admin' && (
-            <AdminPage />
-          )}
+          {activeTab === 'sprint'   && <SprintView  projectId={projectId} />}
+          {activeTab === 'finance'  && <FinanceView  projectId={projectId} />}
+          {activeTab === 'chat'     && <ChatView     projectId={projectId} />}
+          {activeTab === 'planner'  && <PlannerView />}
+          {activeTab === 'report'   && <ReportView   projectId={projectId} />}
+          {activeTab === 'inbox'    && <InboxView />}
+          {activeTab === 'admin'    && user?.role === 'admin' && <AdminPage />}
         </main>
       </div>
 

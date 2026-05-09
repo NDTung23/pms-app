@@ -9,25 +9,20 @@ import './App.css'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) return <div className="page-loading">Đang tải...</div>
+  if (loading) return <div className="page-loading">Dang tai...</div>
   return user ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login"            element={<LoginPage />} />
-      <Route path="/register"         element={<RegisterPage />} />
-      <Route path="/forgot-password"  element={<ForgotPasswordPage />} />
-      <Route path="/reset-password"   element={<ResetPasswordPage />} />
-      <Route
-        path="/*"
-        element={
-          <PrivateRoute>
-            <MainLayout />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/login"           element={<LoginPage />} />
+      <Route path="/register"        element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password"  element={<ResetPasswordPage />} />
+      <Route path="/*" element={
+        <PrivateRoute><MainLayout /></PrivateRoute>
+      } />
     </Routes>
   )
 }
