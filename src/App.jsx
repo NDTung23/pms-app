@@ -9,7 +9,7 @@ import './App.css'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
-  if (loading) return <div className="page-loading">Dang tai...</div>
+  if (loading) return <div className="page-loading">Đang tải...</div>
   return user ? children : <Navigate to="/login" replace />
 }
 

@@ -11,7 +11,7 @@ import SprintView from './SprintView'
 import ChatView from './ChatView'
 import FinanceView from './FinanceView'
 import ProjectPage from '../pages/ProjectPage'
-import AdminPage from './AdminPage'
+import AdminPage from '../pages/AdminPage'
 
 export default function MainLayout() {
   const { user } = useAuth()
@@ -66,7 +66,6 @@ export default function MainLayout() {
           {activeTab === 'projects' && (
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
-
           {activeTab === 'board' && selectedProject ? (
             <BoardView
               projectId={projectId}
@@ -76,14 +75,13 @@ export default function MainLayout() {
           ) : activeTab === 'board' && !selectedProject && (
             <ProjectPage onSelectProject={handleSelectProject} />
           )}
-
-          {activeTab === 'sprint'   && <SprintView  projectId={projectId} />}
-          {activeTab === 'finance'  && <FinanceView  projectId={projectId} />}
-          {activeTab === 'chat'     && <ChatView     projectId={projectId} />}
-          {activeTab === 'planner'  && <PlannerView />}
-          {activeTab === 'report'   && <ReportView   projectId={projectId} />}
-          {activeTab === 'inbox'    && <InboxView />}
-          {activeTab === 'admin'    && user?.role === 'admin' && <AdminPage />}
+          {activeTab === 'sprint'  && <SprintView  projectId={projectId} />}
+          {activeTab === 'finance' && <FinanceView  projectId={projectId} />}
+          {activeTab === 'chat'    && <ChatView     projectId={projectId} />}
+          {activeTab === 'planner' && <PlannerView />}
+          {activeTab === 'report'  && <ReportView   projectId={projectId} />}
+          {activeTab === 'inbox'   && <InboxView />}
+          {activeTab === 'admin'   && user?.role === 'admin' && <AdminPage />}
         </main>
       </div>
 

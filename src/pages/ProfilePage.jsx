@@ -4,23 +4,25 @@ import api from '../services/api'
 
 export default function ProfilePage({ onClose }) {
   const { user, setUser } = useAuth()
-  const [tab, setTab]     = useState('profile') // 'profile' | 'password'
+  const [tab, setTab]     = useState('profile')
   const [form, setForm]   = useState({
-    name: user?.name || '', avatarUrl: user?.avatarUrl || '',
-    phone: user?.phone || '', timezone: user?.timezone || 'Asia/Ho_Chi_Minh', language: user?.language || 'vi',
+    name:      user?.name      || '',
+    avatarUrl: user?.avatarUrl || '',
+    phone:     user?.phone     || '',
+    timezone:  user?.timezone  || 'Asia/Ho_Chi_Minh',
+    language:  user?.language  || 'vi',
   })
   const [pwd, setPwd]     = useState({ old: '', newPwd: '', confirm: '' })
   const [loading, setLoading] = useState(false)
   const [msg, setMsg]         = useState('')
   const [err, setErr]         = useState('')
 
-  const set  = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const set   = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const setPw = (k, v) => setPwd(p => ({ ...p, [k]: v }))
 
   const handleProfile = async (e) => {
     e.preventDefault()
-    setErr(''); setMsg('')
-    setLoading(true)
+    setErr(''); setMsg(''); setLoading(true)
     try {
       const res = await api.put('/auth/profile', form)
       setUser(res.data?.data || res.data)
@@ -49,11 +51,12 @@ export default function ProfilePage({ onClose }) {
         <div className="modal-header">
           <h2 className="modal-title">Hồ sơ cá nhân</h2>
           <button className="modal-close" onClick={onClose}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
           </button>
         </div>
 
-        {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', padding: '0 20px' }}>
           {[['profile','Thông tin'],['password','Mật khẩu']].map(([id, label]) => (
             <button key={id} onClick={() => { setTab(id); setMsg(''); setErr('') }}
@@ -67,17 +70,22 @@ export default function ProfilePage({ onClose }) {
         </div>
 
         <div className="modal-body">
-          {msg && <div style={{ background: 'rgba(34,197,94,.15)', color: '#22c55e', border: '1px solid rgba(34,197,94,.3)', borderRadius: 8, padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>{msg}</div>}
+          {msg && (
+            <div style={{ background: 'rgba(34,197,94,.15)', color: '#22c55e',
+              border: '1px solid rgba(34,197,94,.3)', borderRadius: 8,
+              padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>{msg}</div>
+          )}
           {err && <div className="auth-error" style={{ marginBottom: 12 }}>{err}</div>}
 
           {tab === 'profile' && (
             <form onSubmit={handleProfile}>
-              {/* Avatar preview */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff', fontWeight: 700, flexShrink: 0 }}>
+                <div style={{ width: 60, height: 60, borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 24, color: '#fff', fontWeight: 700, flexShrink: 0, overflow: 'hidden' }}>
                   {form.avatarUrl
-                    ? <img src={form.avatarUrl} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} alt="avatar" />
+                    ? <img src={form.avatarUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
                     : (user?.name || 'U')[0].toUpperCase()}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -87,19 +95,21 @@ export default function ProfilePage({ onClose }) {
                     placeholder="https://example.com/avatar.jpg" />
                 </div>
               </div>
-
               <div className="modal-field">
                 <label className="modal-label">Họ và tên *</label>
-                <input className="modal-input" value={form.name} onChange={e => set('name', e.target.value)} required />
+                <input className="modal-input" value={form.name}
+                  onChange={e => set('name', e.target.value)} required />
               </div>
               <div className="modal-field">
                 <label className="modal-label">Số điện thoại</label>
-                <input className="modal-input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="0901234567" />
+                <input className="modal-input" value={form.phone}
+                  onChange={e => set('phone', e.target.value)} placeholder="0901234567" />
               </div>
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Múi giờ</label>
-                  <select className="modal-input" value={form.timezone} onChange={e => set('timezone', e.target.value)}>
+                  <select className="modal-input" value={form.timezone}
+                    onChange={e => set('timezone', e.target.value)}>
                     <option value="Asia/Ho_Chi_Minh">Hà Nội / TP.HCM (UTC+7)</option>
                     <option value="Asia/Bangkok">Bangkok (UTC+7)</option>
                     <option value="Asia/Singapore">Singapore (UTC+8)</option>
@@ -108,7 +118,8 @@ export default function ProfilePage({ onClose }) {
                 </div>
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Ngôn ngữ</label>
-                  <select className="modal-input" value={form.language} onChange={e => set('language', e.target.value)}>
+                  <select className="modal-input" value={form.language}
+                    onChange={e => set('language', e.target.value)}>
                     <option value="vi">Tiếng Việt</option>
                     <option value="en">English</option>
                   </select>
@@ -117,7 +128,9 @@ export default function ProfilePage({ onClose }) {
               <div className="modal-footer" style={{ paddingTop: 8 }}>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                   <button type="button" className="btn-ghost" onClick={onClose}>Đóng</button>
-                  <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Đang lưu...' : 'Lưu thay đổi'}</button>
+                  <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                  </button>
                 </div>
               </div>
             </form>
@@ -127,20 +140,25 @@ export default function ProfilePage({ onClose }) {
             <form onSubmit={handlePassword}>
               <div className="modal-field">
                 <label className="modal-label">Mật khẩu hiện tại</label>
-                <input className="modal-input" type="password" value={pwd.old} onChange={e => setPw('old', e.target.value)} required />
+                <input className="modal-input" type="password" value={pwd.old}
+                  onChange={e => setPw('old', e.target.value)} required />
               </div>
               <div className="modal-field">
                 <label className="modal-label">Mật khẩu mới</label>
-                <input className="modal-input" type="password" placeholder="Tối thiểu 6 ký tự" value={pwd.newPwd} onChange={e => setPw('newPwd', e.target.value)} required />
+                <input className="modal-input" type="password" placeholder="Tối thiểu 6 ký tự"
+                  value={pwd.newPwd} onChange={e => setPw('newPwd', e.target.value)} required />
               </div>
               <div className="modal-field">
                 <label className="modal-label">Xác nhận mật khẩu mới</label>
-                <input className="modal-input" type="password" value={pwd.confirm} onChange={e => setPw('confirm', e.target.value)} required />
+                <input className="modal-input" type="password" value={pwd.confirm}
+                  onChange={e => setPw('confirm', e.target.value)} required />
               </div>
               <div className="modal-footer" style={{ paddingTop: 8 }}>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
                   <button type="button" className="btn-ghost" onClick={onClose}>Đóng</button>
-                  <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Đang đổi...' : 'Đổi mật khẩu'}</button>
+                  <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? 'Đang đổi...' : 'Đổi mật khẩu'}
+                  </button>
                 </div>
               </div>
             </form>

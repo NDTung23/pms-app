@@ -84,20 +84,20 @@ export default function CommentSection({ cardId, projectMembers }) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
-        Binh luan ({comments.length})
+        Bình luận ({comments.length})
       </div>
 
       <div className="comment-list">
         {loading ? (
-          <div className="comment-loading">Dang tai...</div>
+          <div className="comment-loading">Đang tải...</div>
         ) : comments.length === 0 ? (
-          <div className="comment-empty">Chua co binh luan nao.</div>
+          <div className="comment-empty">Chưa có bình luận nào.</div>
         ) : comments.map(c => (
           <div key={c._id} className="comment-item">
             <div className="comment-avatar">{(c.user?.name || '?')[0].toUpperCase()}</div>
             <div className="comment-body">
               <div className="comment-header">
-                <span className="comment-author">{c.user?.name || 'An danh'}</span>
+                <span className="comment-author">{c.user?.name || 'Ẩn danh'}</span>
                 <span className="comment-time">{timeAgo(c.createdAt)}</span>
                 {c.user?._id === user?._id && (
                   <button className="comment-delete" onClick={() => handleDelete(c._id)}>
@@ -135,7 +135,7 @@ export default function CommentSection({ cardId, projectMembers }) {
             background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8,
             boxShadow: '0 4px 16px rgba(0,0,0,.3)', zIndex: 100, overflow: 'hidden' }}>
             <div style={{ padding: '5px 10px', fontSize: 11, color: 'var(--text-faint)',
-              borderBottom: '1px solid var(--border)' }}>Tag thanh vien</div>
+              borderBottom: '1px solid var(--border)' }}>Tag thành viên</div>
             {mentionList.map(m => (
               <button key={m._id} onClick={() => selectMention(m)}
                 style={{ width: '100%', padding: '8px 10px', background: 'none', border: 'none',
@@ -157,7 +157,7 @@ export default function CommentSection({ cardId, projectMembers }) {
         <form className="comment-form" onSubmit={handleSubmit}>
           <div className="comment-input-avatar">{(user?.name || '?')[0].toUpperCase()}</div>
           <input ref={inputRef} className="comment-input"
-            placeholder="Viet binh luan... dung @ de tag thanh vien"
+            placeholder="Viết bình luận... dùng @ để tag thành viên"
             value={content} onChange={handleInput}
             onKeyDown={e => { if (e.key === 'Escape') setShowMention(false) }} />
           <button type="submit" className="comment-send" disabled={sending || !content.trim()}>

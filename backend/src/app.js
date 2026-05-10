@@ -29,11 +29,11 @@ app.use('/api/audit-logs',    require('./routes/auditlog.routes'))
 app.use('/api/workspace',     require('./routes/workspace.routes'))
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'PMS API dang chay', timestamp: new Date() })
+  res.json({ status: 'OK', message: 'PMS API đang chạy 🚀', timestamp: new Date() })
 })
 
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Endpoint khong ton tai' })
+  res.status(404).json({ success: false, message: 'Endpoint không tồn tại' })
 })
 
 app.use(errorHandler)

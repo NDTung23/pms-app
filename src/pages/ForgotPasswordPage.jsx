@@ -7,20 +7,17 @@ export default function ForgotPasswordPage() {
   const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
   const [err, setErr]         = useState('')
-  // dev only
   const [devUrl, setDevUrl]   = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setErr('')
-    setLoading(true)
+    setErr(''); setLoading(true)
     try {
       const res = await api.post('/auth/forgot-password', { email })
       setSent(true)
       if (res.data?.data?.resetUrl) setDevUrl(res.data.data.resetUrl)
-    } catch (e) {
-      setErr(e.response?.data?.message || 'Lỗi gửi email')
-    } finally { setLoading(false) }
+    } catch (e) { setErr(e.response?.data?.message || 'Lỗi gửi email') }
+    finally { setLoading(false) }
   }
 
   return (
@@ -41,12 +38,14 @@ export default function ForgotPasswordPage() {
               Link có hiệu lực trong <strong>30 phút</strong>.
             </p>
             {devUrl && (
-              <div style={{ background: 'rgba(59,130,246,.1)', border: '1px solid rgba(59,130,246,.3)', borderRadius: 8, padding: 12, fontSize: 12, marginBottom: 12, wordBreak: 'break-all' }}>
+              <div style={{ background: 'rgba(59,130,246,.1)', border: '1px solid rgba(59,130,246,.3)',
+                borderRadius: 8, padding: 12, fontSize: 12, marginBottom: 12, wordBreak: 'break-all' }}>
                 <div style={{ color: '#60a5fa', marginBottom: 4 }}>🛠 Dev Mode — Reset URL:</div>
                 <a href={devUrl} style={{ color: '#93c5fd' }}>{devUrl}</a>
               </div>
             )}
-            <Link to="/login" className="auth-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px', marginTop: 8 }}>
+            <Link to="/login" className="auth-btn"
+              style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '10px', marginTop: 8 }}>
               Quay lại đăng nhập
             </Link>
           </div>

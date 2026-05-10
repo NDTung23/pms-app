@@ -23,9 +23,7 @@ export default function ProjectPage({ onSelectProject }) {
   const isAdmin = user?.role === 'admin'
   const isPM    = user?.role === 'pm' || isAdmin
 
-  useEffect(() => {
-    loadProjects()
-  }, [])
+  useEffect(() => { loadProjects() }, [])
 
   const loadProjects = () => {
     setLoading(true)
@@ -35,64 +33,48 @@ export default function ProjectPage({ onSelectProject }) {
       .finally(() => setLoading(false))
   }
 
-  // Kiểm tra quyền PM với từng project cụ thể
   const isProjectPM = (project) => {
     if (!user) return false
     if (isAdmin) return true
-    const member = project.members?.find(
-      m => (m.user?._id || m.user) === user._id
-    )
-    return member?.role === 'pm' ||
-      project.owner?._id === user._id ||
-      project.owner === user._id
+    const member = project.members?.find(m => (m.user?._id || m.user) === user._id)
+    return member?.role === 'pm' || project.owner?._id === user._id || project.owner === user._id
   }
 
-  // Lấy role của user trong project
   const getMyRole = (project) => {
     if (isAdmin) return 'Admin'
     const isOwner = project.owner?._id === user._id || project.owner === user._id
     if (isOwner) return 'PM (Owner)'
-    const member = project.members?.find(
-      m => (m.user?._id || m.user) === user._id
-    )
+    const member = project.members?.find(m => (m.user?._id || m.user) === user._id)
     return member?.role === 'pm' ? 'PM' : 'Thành viên'
   }
 
   const openCreate = () => {
-    setEditProject(null)
-    setErr('')
+    setEditProject(null); setErr('')
     setForm({ name: '', description: '', startDate: '', endDate: '', status: 'active' })
     setShowForm(true)
   }
 
   const openEdit = (e, project) => {
-    e.stopPropagation()
-    setEditProject(project)
-    setErr('')
+    e.stopPropagation(); setEditProject(project); setErr('')
     setForm({
       name:        project.name,
       description: project.description || '',
-      startDate:   project.startDate ? project.startDate.slice(0, 10) : '',
-      endDate:     project.endDate   ? project.endDate.slice(0, 10)   : '',
+      startDate:   project.startDate?.slice(0, 10) || '',
+      endDate:     project.endDate?.slice(0, 10)   || '',
       status:      project.status || 'active',
     })
     setShowForm(true)
   }
 
-  const openMembers = (e, project) => {
-    e.stopPropagation()
-    setMemberProject(project)
-  }
+  const openMembers = (e, project) => { e.stopPropagation(); setMemberProject(project) }
 
   const handleDelete = async (e, project) => {
     e.stopPropagation()
-    if (!window.confirm(`Xoá dự án "${project.name}"? Hành động không thể hoàn tác!`)) return
+    if (!window.confirm(`Xoá dự án "${project.name}"? Không thể hoàn tác!`)) return
     try {
       await deleteProjectAPI(project._id)
       setProjects(prev => prev.filter(p => p._id !== project._id))
-    } catch (err) {
-      alert(err.response?.data?.message || 'Lỗi xoá dự án')
-    }
+    } catch (err) { alert(err.response?.data?.message || 'Lỗi xoá dự án') }
   }
 
   const handleSubmit = async (e) => {
@@ -110,14 +92,12 @@ export default function ProjectPage({ onSelectProject }) {
         setProjects(prev => [...prev, newProject])
       }
       setShowForm(false)
-    } catch (err) {
-      setErr(err.response?.data?.message || 'Lỗi lưu dự án')
-    }
+    } catch (err) { setErr(err.response?.data?.message || 'Lỗi lưu dự án') }
   }
 
-  const handleMemberUpdate = (updatedProject) => {
-    setProjects(prev => prev.map(p => p._id === updatedProject._id ? updatedProject : p))
-    setMemberProject(updatedProject)
+  const handleMemberUpdate = (updated) => {
+    setProjects(prev => prev.map(p => p._id === updated._id ? updated : p))
+    setMemberProject(updated)
   }
 
   return (
@@ -129,7 +109,6 @@ export default function ProjectPage({ onSelectProject }) {
             {isAdmin ? 'Tất cả dự án trong hệ thống' : 'Dự án bạn tham gia'}
           </p>
         </div>
-        {/* Chỉ Admin và PM được tạo dự án */}
         {isPM && (
           <button className="btn-primary" onClick={openCreate}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 6 }}>
@@ -140,7 +119,7 @@ export default function ProjectPage({ onSelectProject }) {
         )}
       </div>
 
-      {/* Modal tạo/sửa dự án */}
+      {/* Modal tạo/sửa */}
       {showForm && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setShowForm(false)}>
           <div className="modal" style={{ maxWidth: 500 }}>
@@ -157,15 +136,15 @@ export default function ProjectPage({ onSelectProject }) {
                 {err && <div className="auth-error" style={{ marginBottom: 12 }}>{err}</div>}
                 <div className="modal-field">
                   <label className="modal-label">Tên dự án *</label>
-                  <input className="modal-input" value={form.name}
+                  <input className="modal-input" value={form.name} autoFocus required
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    placeholder="Nhập tên dự án..." autoFocus required />
+                    placeholder="Nhập tên dự án..." />
                 </div>
                 <div className="modal-field">
                   <label className="modal-label">Mô tả</label>
-                  <textarea className="modal-input modal-textarea" value={form.description}
+                  <textarea className="modal-input modal-textarea" rows={3} value={form.description}
                     onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                    placeholder="Mô tả ngắn về dự án..." rows={3} />
+                    placeholder="Mô tả ngắn về dự án..." />
                 </div>
                 <div className="modal-row">
                   <div className="modal-field" style={{ flex: 1 }}>
@@ -204,11 +183,7 @@ export default function ProjectPage({ onSelectProject }) {
       )}
 
       {memberProject && (
-        <MemberModal
-          project={memberProject}
-          onClose={() => setMemberProject(null)}
-          onUpdate={handleMemberUpdate}
-        />
+        <MemberModal project={memberProject} onClose={() => setMemberProject(null)} onUpdate={handleMemberUpdate} />
       )}
 
       {loading ? (
@@ -217,21 +192,19 @@ export default function ProjectPage({ onSelectProject }) {
         <div className="project-empty">
           <div style={{ fontSize: 48, marginBottom: 12 }}>📂</div>
           <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>
-            {isPM ? 'Chưa có dự án nào. Hãy tạo dự án đầu tiên!' : 'Bạn chưa được thêm vào dự án nào.'}
+            {isPM ? 'Chưa có dự án nào.' : 'Bạn chưa được thêm vào dự án nào.'}
           </p>
           {isPM && <button className="btn-primary" onClick={openCreate}>Tạo dự án đầu tiên</button>}
         </div>
       ) : (
         <div className="project-grid">
           {projects.map(project => {
-            const pmRole  = isProjectPM(project)
-            const myRole  = getMyRole(project)
-            const status  = STATUS_LABELS[project.status] || STATUS_LABELS.active
-            const memberCount = project.members?.length || 1
+            const pmRole = isProjectPM(project)
+            const myRole = getMyRole(project)
+            const status = STATUS_LABELS[project.status] || STATUS_LABELS.active
 
             return (
               <div key={project._id} className="project-card" onClick={() => onSelectProject(project)}>
-                {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                   <div className="project-card-name" style={{ margin: 0, flex: 1 }}>{project.name}</div>
                   <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, flexShrink: 0, marginLeft: 8,
@@ -242,7 +215,6 @@ export default function ProjectPage({ onSelectProject }) {
 
                 <div className="project-card-desc">{project.description || 'Không có mô tả'}</div>
 
-                {/* Deadline */}
                 {(project.startDate || project.endDate) && (
                   <div style={{ fontSize: 11, color: 'var(--text-faint)', margin: '8px 0', display: 'flex', gap: 12 }}>
                     {project.startDate && <span>📅 {new Date(project.startDate).toLocaleDateString('vi-VN')}</span>}
@@ -250,7 +222,6 @@ export default function ProjectPage({ onSelectProject }) {
                   </div>
                 )}
 
-                {/* Members avatars */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '10px 0' }}>
                   {project.members?.slice(0, 5).map((m, i) => {
                     const name = m.user?.name || '?'
@@ -260,29 +231,25 @@ export default function ProjectPage({ onSelectProject }) {
                         background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 11, color: '#fff', fontWeight: 700,
-                        border: '2px solid var(--card)', marginLeft: i > 0 ? -8 : 0,
-                      }}>
+                        border: '2px solid var(--card)', marginLeft: i > 0 ? -8 : 0 }}>
                         {name.charAt(0).toUpperCase()}
                       </div>
                     )
                   })}
                   <span style={{ fontSize: 11, color: 'var(--text-faint)', marginLeft: 4 }}>
-                    {memberCount} thành viên
+                    {project.members?.length || 1} thành viên
                   </span>
-                  {/* Role badge */}
                   <span style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 8px', borderRadius: 20,
-                    background: myRole.includes('PM') || myRole === 'Admin' ? '#f59e0b22' : '#3b82f622',
-                    color:      myRole.includes('PM') || myRole === 'Admin' ? '#f59e0b'   : '#3b82f6',
-                    border:     `1px solid ${myRole.includes('PM') || myRole === 'Admin' ? '#f59e0b44' : '#3b82f644'}` }}>
+                    background: (myRole.includes('PM') || myRole === 'Admin') ? '#f59e0b22' : '#3b82f622',
+                    color:      (myRole.includes('PM') || myRole === 'Admin') ? '#f59e0b'   : '#3b82f6',
+                    border: `1px solid ${(myRole.includes('PM') || myRole === 'Admin') ? '#f59e0b44' : '#3b82f644'}` }}>
                     {myRole}
                   </span>
                 </div>
 
-                {/* Actions — chỉ PM/Admin */}
                 <div className="project-card-actions" onClick={e => e.stopPropagation()}>
                   {pmRole && (
-                    <button className="project-action-btn edit"
-                      onClick={e => openMembers(e, project)} title="Quản lý thành viên">
+                    <button className="project-action-btn edit" onClick={e => openMembers(e, project)} title="Quản lý thành viên">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                         <circle cx="9" cy="7" r="4"/>
@@ -292,8 +259,7 @@ export default function ProjectPage({ onSelectProject }) {
                     </button>
                   )}
                   {pmRole && (
-                    <button className="project-action-btn edit"
-                      onClick={e => openEdit(e, project)} title="Sửa dự án">
+                    <button className="project-action-btn edit" onClick={e => openEdit(e, project)} title="Sửa dự án">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>
@@ -302,8 +268,7 @@ export default function ProjectPage({ onSelectProject }) {
                     </button>
                   )}
                   {isAdmin && (
-                    <button className="project-action-btn delete"
-                      onClick={e => handleDelete(e, project)} title="Xoá dự án">
+                    <button className="project-action-btn delete" onClick={e => handleDelete(e, project)} title="Xoá dự án">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>

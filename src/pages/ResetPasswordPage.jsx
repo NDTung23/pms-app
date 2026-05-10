@@ -3,14 +3,14 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import api from '../services/api'
 
 export default function ResetPasswordPage() {
-  const [params]              = useSearchParams()
-  const navigate              = useNavigate()
-  const token                 = params.get('token') || ''
-  const [password, setPassword]   = useState('')
-  const [confirm, setConfirm]     = useState('')
-  const [loading, setLoading]     = useState(false)
-  const [err, setErr]             = useState('')
-  const [done, setDone]           = useState(false)
+  const [params]                    = useSearchParams()
+  const navigate                    = useNavigate()
+  const token                       = params.get('token') || ''
+  const [password, setPassword]     = useState('')
+  const [confirm, setConfirm]       = useState('')
+  const [loading, setLoading]       = useState(false)
+  const [err, setErr]               = useState('')
+  const [done, setDone]             = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -22,9 +22,8 @@ export default function ResetPasswordPage() {
       await api.post('/auth/reset-password', { token, password })
       setDone(true)
       setTimeout(() => navigate('/login'), 2000)
-    } catch (e) {
-      setErr(e.response?.data?.message || 'Token không hợp lệ hoặc đã hết hạn')
-    } finally { setLoading(false) }
+    } catch (e) { setErr(e.response?.data?.message || 'Token không hợp lệ hoặc đã hết hạn') }
+    finally { setLoading(false) }
   }
 
   return (
@@ -40,10 +39,14 @@ export default function ResetPasswordPage() {
         {done ? (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Mật khẩu đã được cập nhật! Đang chuyển đến trang đăng nhập...</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
+              Mật khẩu đã được cập nhật! Đang chuyển đến trang đăng nhập...
+            </p>
           </div>
         ) : !token ? (
-          <div className="auth-error">Token không hợp lệ. <Link to="/forgot-password">Thử lại</Link></div>
+          <div className="auth-error">
+            Token không hợp lệ. <Link to="/forgot-password">Thử lại</Link>
+          </div>
         ) : (
           <>
             {err && <div className="auth-error">{err}</div>}

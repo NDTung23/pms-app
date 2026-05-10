@@ -4,23 +4,13 @@ const List    = require('../models/List')
 const Card    = require('../models/Card')
 const { success, error } = require('../utils/response')
 
-// UC12: Lấy danh sách dự án — đúng theo role
-// Admin: thấy tất cả
-// PM/TV: chỉ thấy dự án mình là owner HOẶC đã được thêm vào members
+// UC12: Lấy dự án theo role
+// Admin: tất cả | PM/TV: chỉ dự án mình tham gia
 const getProjects = async (req, res, next) => {
   try {
-    let filter
-    if (req.user.role === 'admin') {
-      filter = {} // Admin thấy tất cả
-    } else {
-      // PM và TV chỉ thấy dự án mình tham gia
-      filter = {
-        $or: [
-          { owner: req.user._id },
-          { 'members.user': req.user._id },
-        ]
-      }
-    }
+    const filter = req.user.role === 'admin'
+      ? {}
+      : { $or: [{ owner: req.user._id }, { 'members.user': req.user._id }] }
 
     const projects = await Project.find(filter)
       .populate('owner', 'name email avatarUrl')
@@ -31,7 +21,7 @@ const getProjects = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// UC12: Xem chi tiết dự án — kiểm tra quyền truy cập
+// UC12: Xem chi tiết — kiểm tra quyền truy cập
 const getProject = async (req, res, next) => {
   try {
     const project = await Project.findById(req.params.id)
@@ -40,15 +30,10 @@ const getProject = async (req, res, next) => {
 
     if (!project) return error(res, 'Không tìm thấy dự án', 404)
 
-    // Kiểm tra quyền: admin thấy tất cả, còn lại phải là member/owner
     if (req.user.role !== 'admin') {
-      const isMember = project.members.some(
-        m => m.user._id?.toString() === req.user._id.toString()
-      )
-      const isOwner = project.owner._id?.toString() === req.user._id.toString()
-      if (!isMember && !isOwner) {
-        return error(res, 'Bạn không có quyền xem dự án này', 403)
-      }
+      const isMember = project.members.some(m => m.user._id?.toString() === req.user._id.toString())
+      const isOwner  = project.owner._id?.toString() === req.user._id.toString()
+      if (!isMember && !isOwner) return error(res, 'Bạn không có quyền xem dự án này', 403)
     }
 
     return success(res, project)
@@ -62,10 +47,7 @@ const createProject = async (req, res, next) => {
     if (!name?.trim()) return error(res, 'Tên dự án không được trống', 400)
 
     const project = await Project.create({
-      name: name.trim(),
-      description,
-      startDate,
-      endDate,
+      name: name.trim(), description, startDate, endDate,
       owner: req.user._id,
       members: [{ user: req.user._id, role: 'pm' }],
       status: 'active',
@@ -76,21 +58,17 @@ const createProject = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// UC11: Chỉnh sửa dự án — chỉ PM/owner/admin
+// UC11: Chỉnh sửa — PM/owner/admin
 const updateProject = async (req, res, next) => {
   try {
     const project = await Project.findById(req.params.id)
     if (!project) return error(res, 'Không tìm thấy dự án', 404)
 
-    // Kiểm tra quyền sửa
     if (req.user.role !== 'admin') {
-      const member = project.members.find(
-        m => m.user.toString() === req.user._id.toString()
-      )
+      const member  = project.members.find(m => m.user.toString() === req.user._id.toString())
       const isOwner = project.owner.toString() === req.user._id.toString()
-      if (!isOwner && member?.role !== 'pm') {
+      if (!isOwner && member?.role !== 'pm')
         return error(res, 'Chỉ PM hoặc owner mới được chỉnh sửa dự án', 403)
-      }
     }
 
     const allowed = ['name', 'description', 'startDate', 'endDate', 'status']
@@ -105,7 +83,7 @@ const updateProject = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// UC11: Xoá dự án — chỉ Admin
+// UC11: Xoá — chỉ Admin
 const deleteProject = async (req, res, next) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id)
@@ -114,22 +92,18 @@ const deleteProject = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// UC13: Thêm thành viên — chỉ PM/owner/admin
+// UC13: Thêm thành viên — PM/owner/admin
 const addMember = async (req, res, next) => {
   try {
     const { userId, role } = req.body
     const project = await Project.findById(req.params.id)
     if (!project) return error(res, 'Không tìm thấy dự án', 404)
 
-    // Kiểm tra quyền
     if (req.user.role !== 'admin') {
-      const member = project.members.find(
-        m => m.user.toString() === req.user._id.toString()
-      )
+      const member  = project.members.find(m => m.user.toString() === req.user._id.toString())
       const isOwner = project.owner.toString() === req.user._id.toString()
-      if (!isOwner && member?.role !== 'pm') {
+      if (!isOwner && member?.role !== 'pm')
         return error(res, 'Chỉ PM mới được thêm thành viên', 403)
-      }
     }
 
     const already = project.members.find(m => m.user.toString() === userId)
@@ -143,31 +117,23 @@ const addMember = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-// UC13: Xoá thành viên — chỉ PM/owner/admin
+// UC13: Xoá thành viên — PM/owner/admin
 const removeMember = async (req, res, next) => {
   try {
     const project = await Project.findById(req.params.id)
     if (!project) return error(res, 'Không tìm thấy dự án', 404)
 
-    // Kiểm tra quyền
     if (req.user.role !== 'admin') {
-      const member = project.members.find(
-        m => m.user.toString() === req.user._id.toString()
-      )
+      const member  = project.members.find(m => m.user.toString() === req.user._id.toString())
       const isOwner = project.owner.toString() === req.user._id.toString()
-      if (!isOwner && member?.role !== 'pm') {
+      if (!isOwner && member?.role !== 'pm')
         return error(res, 'Chỉ PM mới được xoá thành viên', 403)
-      }
     }
 
-    // Không cho xoá owner
-    if (project.owner.toString() === req.params.userId) {
+    if (project.owner.toString() === req.params.userId)
       return error(res, 'Không thể xoá owner khỏi dự án', 400)
-    }
 
-    project.members = project.members.filter(
-      m => m.user.toString() !== req.params.userId
-    )
+    project.members = project.members.filter(m => m.user.toString() !== req.params.userId)
     await project.save()
     return success(res, project, 'Xoá thành viên thành công')
   } catch (err) { next(err) }

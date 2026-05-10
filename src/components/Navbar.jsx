@@ -30,7 +30,7 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
     const handler = (e) => {
       if (notifRef.current  && !notifRef.current.contains(e.target))  setShowNotif(false)
       if (avatarRef.current && !avatarRef.current.contains(e.target)) setShowDropdown(false)
-      if (searchRef.current && !searchRef.current.contains(e.target)) { setShowSearch(false) }
+      if (searchRef.current && !searchRef.current.contains(e.target)) setShowSearch(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -60,15 +60,14 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
     const hours = Math.floor(diff / 3600000)
     const days  = Math.floor(diff / 86400000)
     if (mins < 1)   return 'Vừa xong'
-    if (mins < 60)  return `${mins}p trước`
-    if (hours < 24) return `${hours}h trước`
-    return `${days}d trước`
+    if (mins < 60)  return mins + 'p trước'
+    if (hours < 24) return hours + 'h trước'
+    return days + 'ngày trước'
   }
 
   return (
     <>
       <nav className="navbar">
-        {/* Menu */}
         <button className="nav-icon-btn" onClick={onMenuClick} title="Menu">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="3" y1="6"  x2="21" y2="6"/>
@@ -77,30 +76,27 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
           </svg>
         </button>
 
-        {/* Logo */}
         <div className="navbar-logo">
           <div className="logo-icon"><span/><span/><span/><span/></div>
           PMS
         </div>
 
-        {/* Search */}
+        {/* Tìm kiếm */}
         <div ref={searchRef} style={{ position: 'relative', flex: 1, maxWidth: 400 }}>
           {showSearch ? (
             <div style={{ position: 'relative' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-faint)', pointerEvents: 'none' }}>
+                style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                  color: 'var(--text-faint)', pointerEvents: 'none' }}>
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
-              <input
-                autoFocus
-                value={searchText}
+              <input autoFocus value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Escape') { setShowSearch(false); setSearchText('') } }}
                 placeholder="Tìm kiếm dự án, thẻ..."
                 style={{ width: '100%', padding: '8px 12px 8px 36px',
                   background: 'rgba(255,255,255,.08)', border: '1px solid var(--accent)',
-                  borderRadius: 8, color: 'var(--text)', fontSize: 13, outline: 'none' }}
-              />
+                  borderRadius: 8, color: 'var(--text)', fontSize: 13, outline: 'none' }} />
             </div>
           ) : (
             <button onClick={() => setShowSearch(true)} className="navbar-search"
@@ -111,23 +107,20 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
               Tìm kiếm...
             </button>
           )}
-
-          {/* Search hint dropdown */}
           {showSearch && searchText.trim().length > 1 && (
             <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
               background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10,
               boxShadow: '0 8px 32px rgba(0,0,0,.4)', zIndex: 200, overflow: 'hidden' }}>
-              <div style={{ padding: '8px 14px', fontSize: 11, color: 'var(--text-faint)', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '8px 14px', fontSize: 11, color: 'var(--text-faint)',
+                borderBottom: '1px solid var(--border)' }}>
                 Tìm kiếm: <strong style={{ color: 'var(--text)' }}>{searchText}</strong>
               </div>
-              <button
-                onClick={() => { onTabChange?.('projects'); setShowSearch(false); setSearchText('') }}
+              <button onClick={() => { onTabChange?.('projects'); setShowSearch(false); setSearchText('') }}
                 style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none',
                   cursor: 'pointer', textAlign: 'left', fontSize: 13, color: 'var(--text)',
                   display: 'flex', alignItems: 'center', gap: 10 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}
-              >
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}>
                 <span>🔍</span> Tìm trong tất cả dự án
               </button>
             </div>
@@ -146,8 +139,7 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
           {/* Chuông thông báo */}
           <div ref={notifRef} style={{ position: 'relative' }}>
             <button className="nav-icon-btn" title="Thông báo"
-              onClick={() => setShowNotif(o => !o)}
-              style={{ position: 'relative' }}>
+              onClick={() => setShowNotif(o => !o)} style={{ position: 'relative' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -164,8 +156,8 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
             </button>
 
             {showNotif && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                width: 340, background: 'var(--card)', border: '1px solid var(--border)',
+              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 340,
+                background: 'var(--card)', border: '1px solid var(--border)',
                 borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,.4)', zIndex: 200, overflow: 'hidden' }}>
                 <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between',
                   alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
@@ -179,7 +171,6 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                     </button>
                   )}
                 </div>
-
                 <div style={{ maxHeight: 320, overflowY: 'auto' }}>
                   {notifs.length === 0 ? (
                     <div style={{ padding: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-faint)' }}>
@@ -191,8 +182,7 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                         background: n.isRead ? 'transparent' : 'rgba(37,99,235,.08)',
                         borderBottom: '1px solid var(--border)', transition: 'background .15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.05)'}
-                      onMouseLeave={e => e.currentTarget.style.background = n.isRead ? 'transparent' : 'rgba(37,99,235,.08)'}
-                    >
+                      onMouseLeave={e => e.currentTarget.style.background = n.isRead ? 'transparent' : 'rgba(37,99,235,.08)'}>
                       <span style={{ fontSize: 18, flexShrink: 0 }}>{typeIcon[n.type] || '🔔'}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: n.isRead ? 400 : 600, color: 'var(--text)',
@@ -208,7 +198,6 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                     </div>
                   ))}
                 </div>
-
                 <div style={{ padding: '8px 16px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
                   <button onClick={() => { onTabChange?.('inbox'); setShowNotif(false) }}
                     style={{ fontSize: 12, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -256,9 +245,8 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                   </svg>
                   Hộp thư đến
                   {unread > 0 && (
-                    <span style={{ marginLeft: 'auto', background: '#ef4444', color: '#fff', fontSize: 10, padding: '1px 6px', borderRadius: 20 }}>
-                      {unread}
-                    </span>
+                    <span style={{ marginLeft: 'auto', background: '#ef4444', color: '#fff',
+                      fontSize: 10, padding: '1px 6px', borderRadius: 20 }}>{unread}</span>
                   )}
                 </button>
 
@@ -277,7 +265,8 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                 <button className="dropdown-item danger" onClick={logout}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}>
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
                   </svg>
                   Đăng xuất
                 </button>
