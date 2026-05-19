@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../hooks/useTheme'
 import ProfilePage from '../pages/ProfilePage'
 import { getNotificationsAPI, markReadAPI, markAllReadAPI } from '../services/notificationService'
 
 export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
   const { logout, user }                = useAuth()
+  const { isDark, toggleTheme }         = useTheme()
   const [showProfile, setShowProfile]   = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [showNotif, setShowNotif]       = useState(false)
@@ -136,6 +138,13 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
             Tạo mới
           </button>
 
+          {/* UC36+: Toggle Dark/Light mode */}
+          <button className="nav-icon-btn" onClick={toggleTheme}
+            title={isDark ? 'Chuyển sang Light mode' : 'Chuyển sang Dark mode'}
+            style={{ fontSize: 16 }}>
+            {isDark ? '☀️' : '🌙'}
+          </button>
+
           {/* Chuông thông báo */}
           <div ref={notifRef} style={{ position: 'relative' }}>
             <button className="nav-icon-btn" title="Thông báo"
@@ -261,6 +270,12 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                 )}
 
                 <div style={{ borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+
+                {/* Toggle theme trong dropdown */}
+                <button className="dropdown-item" onClick={toggleTheme}>
+                  <span style={{ marginRight: 8, fontSize: 13 }}>{isDark ? '☀️' : '🌙'}</span>
+                  {isDark ? 'Chế độ sáng' : 'Chế độ tối'}
+                </button>
 
                 <button className="dropdown-item danger" onClick={logout}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}>
