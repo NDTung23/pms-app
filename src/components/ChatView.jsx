@@ -24,7 +24,7 @@ export default function ChatView({ projectId }) {
   const [content, setContent]           = useState('')
   const [loading, setLoading]           = useState(true)
   const [sending, setSending]           = useState(false)
-  const [showNewChannel, setShowNew]    = useState(false)
+  const [showNewChannel, setShowNewChannel] = useState(false)
   const [newChName, setNewChName]       = useState('')
   const [showEmoji, setShowEmoji]       = useState(false)
   const [attUrl, setAttUrl]             = useState('')
@@ -46,14 +46,25 @@ export default function ChatView({ projectId }) {
 
   useEffect(() => {
     if (!activeChannel) return
-    getMessagesAPI(activeChannel._id)
-      .then(r => setMessages(r.data?.data || []))
-    clearInterval(pollRef.current)
-    pollRef.current = setInterval(() => {
+
+    let cancelled = false  // flag tránh set state sau unmount
+
+    const fetchMessages = () => {
       getMessagesAPI(activeChannel._id)
-        .then(r => setMessages(r.data?.data || []))
-    }, 5000)
-    return () => clearInterval(pollRef.current)
+        .then(r => {
+          if (!cancelled) setMessages(r.data?.data || [])
+        })
+        .catch(() => {})
+    }
+
+    fetchMessages() // load lần đầu
+
+    const timer = setInterval(fetchMessages, 5000)
+
+    return () => {
+      cancelled = true       // ngăn set state
+      clearInterval(timer)   // xoá interval khi unmount
+    }
   }, [activeChannel])
 
   useEffect(() => {
@@ -99,7 +110,7 @@ export default function ChatView({ projectId }) {
       const ch = r.data?.data || r.data
       setChannels(prev => [...prev, ch])
       setActive(ch)
-      setShowNew(false); setNewChName('')
+      setShowNewChannel(false); setNewChName('')
     } catch { alert('Lỗi tạo kênh') }
   }
 
@@ -129,17 +140,17 @@ export default function ChatView({ projectId }) {
           justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)',
             textTransform: 'uppercase', letterSpacing: 1 }}>Kênh chat</span>
-          <button onClick={() => setShowNew(true)}
+          <button onClick={() => setShowNewChannel(true)}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: 20, lineHeight: 1 }}>+</button>
         </div>
 
-        {showNew && (
+        {showNewChannel && (
           <form onSubmit={handleCreateChannel} style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
             <input className="modal-input" value={newChName} onChange={e => setNewChName(e.target.value)}
               placeholder="Tên kênh..." autoFocus style={{ marginBottom: 6, fontSize: 12 }} />
             <div style={{ display: 'flex', gap: 4 }}>
               <button type="submit" className="btn-primary" style={{ flex: 1, fontSize: 12, padding: '4px 8px' }}>Tạo</button>
-              <button type="button" className="btn-ghost" style={{ flex: 1, fontSize: 12, padding: '4px 8px' }} onClick={() => setShowNew(false)}>Huỷ</button>
+              <button type="button" className="btn-ghost" style={{ flex: 1, fontSize: 12, padding: '4px 8px' }} onClick={() => setShowNewChannel(false)}>Huỷ</button>
             </div>
           </form>
         )}
