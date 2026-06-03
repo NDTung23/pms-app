@@ -1,96 +1,55 @@
-/* ─── Light Mode CSS Variables ───────────────────────── */
-/* Thêm file này vào main.jsx: import './theme.css'       */
+/* theme.css — CSS vars cho dark/light mode */
 
-/* Dark mode (mặc định) */
 :root, [data-theme="dark"] {
-  --bg:          #0a0e1a;
-  --sidebar:     #0d1221;
-  --card:        #111827;
-  --navbar:      #0d1221;
-  --border:      rgba(255,255,255,.08);
-  --text:        #f1f5f9;
-  --text-muted:  #94a3b8;
-  --text-faint:  #475569;
-  --accent:      #3b82f6;
-  --accent-hover:#2563eb;
-  --danger:      #ef4444;
-  --success:     #22c55e;
-  --warning:     #f59e0b;
+  --bg:         #0a0e1a;
+  --sidebar:    rgba(13,18,33,.85);
+  --card:       rgba(255,255,255,.05);
+  --navbar:     rgba(13,18,33,.92);
+  --border:     rgba(255,255,255,.09);
+  --text:       #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-faint: #475569;
+  --accent:     #3b82f6;
+  --accent-hover: #2563eb;
+  --danger:     #ef4444;
+  --success:    #22c55e;
+  --warning:    #f59e0b;
+  --glass-bg:     rgba(255,255,255,.04);
+  --glass-border: rgba(255,255,255,.10);
+  --shadow-lg:    0 8px 40px rgba(0,0,0,.5);
 }
 
-/* Light mode */
 [data-theme="light"] {
-  --bg:          #f8fafc;
-  --sidebar:     #ffffff;
-  --card:        #ffffff;
-  --navbar:      #ffffff;
-  --border:      rgba(0,0,0,.1);
-  --text:        #0f172a;
-  --text-muted:  #475569;
-  --text-faint:  #94a3b8;
-  --accent:      #2563eb;
-  --accent-hover:#1d4ed8;
-  --danger:      #dc2626;
-  --success:     #16a34a;
-  --warning:     #d97706;
+  --bg:         #f0f4ff;
+  --sidebar:    rgba(255,255,255,.85);
+  --card:       rgba(255,255,255,.80);
+  --navbar:     rgba(255,255,255,.92);
+  --border:     rgba(0,0,0,.08);
+  --text:       #0f172a;
+  --text-muted: #475569;
+  --text-faint: #94a3b8;
+  --accent:     #2563eb;
+  --accent-hover: #1d4ed8;
+  --danger:     #dc2626;
+  --success:    #16a34a;
+  --warning:    #d97706;
+  --glass-bg:     rgba(255,255,255,.6);
+  --glass-border: rgba(0,0,0,.08);
+  --shadow-lg:    0 8px 40px rgba(0,0,0,.15);
 }
 
-/* Light mode: điều chỉnh các gradient orb */
-[data-theme="light"] .orb-1 { opacity: 0.08; }
-[data-theme="light"] .orb-2 { opacity: 0.06; }
-[data-theme="light"] .orb-3 { opacity: 0.05; }
-
-/* Light mode: shadow cho card */
+/* Light mode adjustments */
+[data-theme="light"] .board-card,
 [data-theme="light"] .project-card,
-[data-theme="light"] .modal,
-[data-theme="light"] .chart-card,
-[data-theme="light"] .stat-card {
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+[data-theme="light"] .stat-card,
+[data-theme="light"] .chart-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
-
-/* Light mode: navbar border-bottom */
-[data-theme="light"] .navbar {
-  border-bottom: 1px solid var(--border);
-}
-
-/* Light mode: sidebar border-right */
+[data-theme="light"] .navbar,
 [data-theme="light"] .sidebar {
-  border-right: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(0,0,0,.08);
 }
-
-/* Light mode: input background */
-[data-theme="light"] .modal-input,
-[data-theme="light"] .auth-input,
-[data-theme="light"] .admin-search-input {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: var(--text);
-}
-
-[data-theme="light"] .modal-input:focus,
-[data-theme="light"] .auth-input:focus {
-  border-color: var(--accent);
-  background: #fff;
-}
-
-/* Light mode: dropdown */
-[data-theme="light"] .dropdown {
-  box-shadow: 0 4px 20px rgba(0,0,0,.12);
-}
-
-/* Light mode: admin table */
-[data-theme="light"] .admin-table {
-  background: #fff;
-}
-[data-theme="light"] .admin-table tr:hover {
-  background: #f8fafc;
-}
-
-/* Transition mượt khi đổi theme */
-*, *::before, *::after {
-  transition: background-color .2s ease, border-color .2s ease, color .1s ease;
-}
-/* Ngoại trừ animation không nên transition */
-.orb, .card-label-bar, .bar-fill {
-  transition: none !important;
-}
+[data-theme="light"] .orb-1 { opacity: .06 }
+[data-theme="light"] .orb-2 { opacity: .05 }
+[data-theme="light"] .orb-3 { opacity: .04 }
+[data-theme="light"] .auth-card { box-shadow: 0 8px 32px rgba(0,0,0,.12) }

@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import ProfilePage from '../pages/ProfilePage'
 import { getNotificationsAPI, markReadAPI, markAllReadAPI } from '../services/notificationService'
+import BackgroundPicker from './BackgroundPicker'
 
 export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
   const { logout, user }                = useAuth()
@@ -14,6 +15,7 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
   const [searchText, setSearchText]     = useState('')
   const [notifs, setNotifs]             = useState([])
   const [unread, setUnread]             = useState(0)
+  const [showBgPicker, setShowBgPicker] = useState(false)
   const searchRef = useRef(null)
   const notifRef  = useRef(null)
   const avatarRef = useRef(null)
@@ -143,6 +145,12 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
             title={isDark ? 'Chuyển sang Light mode' : 'Chuyển sang Dark mode'}
             style={{ fontSize: 16 }}>
             {isDark ? '☀️' : '🌙'}
+          </button>
+
+          {/* Tuỳ chỉnh giao diện */}
+          <button className="btn-bg-picker" title="Tuỳ chỉnh giao diện"
+            onClick={() => setShowBgPicker(true)}>
+            🎨
           </button>
 
           {/* Chuông thông báo */}
@@ -277,6 +285,11 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
                   {isDark ? 'Chế độ sáng' : 'Chế độ tối'}
                 </button>
 
+                <button className="dropdown-item" onClick={() => { setShowBgPicker(true); setShowDropdown(false) }}>
+                  <span style={{ marginRight: 8, fontSize: 13 }}>🎨</span>
+                  Tuỳ chỉnh giao diện
+                </button>
+
                 <button className="dropdown-item danger" onClick={logout}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8 }}>
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -291,7 +304,8 @@ export default function Navbar({ onMenuClick, onCreateProject, onTabChange }) {
         </div>
       </nav>
 
-      {showProfile && <ProfilePage onClose={() => setShowProfile(false)} />}
+      {showProfile   && <ProfilePage      onClose={() => setShowProfile(false)} />}
+      {showBgPicker  && <BackgroundPicker  onClose={() => setShowBgPicker(false)} />}
     </>
   )
 }

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useBackground } from '../hooks/useBackground'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import TabBar from './TabBar'
@@ -15,6 +16,7 @@ import AdminPage from '../pages/AdminPage'
 
 export default function MainLayout() {
   const { user } = useAuth()
+  useBackground() // Khôi phục background + theme đã lưu
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab]     = useState(
     () => localStorage.getItem('pms_active_tab') || 'projects'
@@ -41,7 +43,7 @@ export default function MainLayout() {
   const projectId = selectedProject?._id
 
   return (
-    <div className="app">
+    <div className="app" data-bg="midnight" data-theme="dark">
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       <div className="orb orb-3" />

@@ -13,10 +13,10 @@ import { getProjectAPI } from '../services/projectService'
 const labelColor = id => LABEL_COLORS.find(l => l.id === id)?.bg || '#3b82f6'
 
 const priorityBadge = {
-  urgent: { bg: '#fee2e2', color: '#991b1b', label: 'Khan cap' },
+  urgent: { bg: '#fee2e2', color: '#991b1b', label: 'Khẩn cấp' },
   high:   { bg: '#fef3c7', color: '#92400e', label: 'Cao' },
-  medium: { bg: '#dbeafe', color: '#1e40af', label: 'Trung binh' },
-  low:    { bg: '#f0fdf4', color: '#166534', label: 'Thap' },
+  medium: { bg: '#dbeafe', color: '#1e40af', label: 'Trung bình' },
+  low:    { bg: '#f0fdf4', color: '#166534', label: 'Thấp' },
 }
 const statusDot = {
   done:        '#22c55e',
@@ -63,7 +63,7 @@ function CardItem({ card, listId, onDragStart, onDragEnd, onClick }) {
       onClick={() => onClick(card, listId)}>
       <div className="card-label-bar" style={{ background: labelColor(card.labelColor || card.label) }} />
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
-        <div style={{ width: 8, height: 8, borderRadius: '50%', background: dot, marginTop: 4, flexShrink: 0 }} title={'Trang thai: ' + (card.status || 'todo')} />
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: dot, marginTop: 4, flexShrink: 0 }} title={'Trạng thái: ' + (card.status || 'todo')} />
         <div className="card-title" style={{ margin: 0 }}>{card.title}</div>
       </div>
       <div className="card-meta">
@@ -125,8 +125,8 @@ function ListColumn({ list, filteredCards, onDragStart, onDragEnd, onDragOver, o
             </button>
             {menuOpen && (
               <div className="dropdown" onMouseLeave={() => setMenuOpen(false)}>
-                <button className="dropdown-item" onClick={() => { onEditList(list); setMenuOpen(false) }}>Doi ten</button>
-                <button className="dropdown-item danger" onClick={() => { onDeleteList(list._id); setMenuOpen(false) }}>Xoa cot</button>
+                <button className="dropdown-item" onClick={() => { onEditList(list); setMenuOpen(false) }}>Đổi tên</button>
+                <button className="dropdown-item danger" onClick={() => { onDeleteList(list._id); setMenuOpen(false) }}>Xoá cột</button>
               </div>
             )}
           </div>
@@ -138,12 +138,12 @@ function ListColumn({ list, filteredCards, onDragStart, onDragEnd, onDragOver, o
             onDragStart={onDragStart} onDragEnd={onDragEnd} onClick={onCardClick} />
         ))}
         {isFiltering && filteredCards.length === 0 && (
-          <div className="filter-empty-list">Khong co the nao khop</div>
+          <div className="filter-empty-list">Không có thẻ nào khớp</div>
         )}
       </div>
       {canEdit && (
         <button className="list-add-btn" onClick={() => onAddCard(list._id)}>
-          <span className="add-icon">+</span>Them the
+          <span className="add-icon">+</span>Thêm thẻ
         </button>
       )}
     </div>
@@ -197,7 +197,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
         const boards   = boardRes.data?.data || boardRes.data || []
         let board      = boards[0]
         if (!board) {
-          const newRes = await createBoardAPI({ project: projectId, title: 'Board chinh' })
+          const newRes = await createBoardAPI({ project: projectId, title: 'Board chính' })
           board = newRes.data?.data || newRes.data
         }
         if (cancelled) return
@@ -212,7 +212,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
           })
         )
         if (!cancelled) setLists(listsWithCards)
-      } catch (err) { console.error('Loi init board:', err) }
+      } catch (err) { console.error('Lỗi khởi tạo board:', err) }
       finally { if (!cancelled) setLoading(false) }
     }
     init()
@@ -243,7 +243,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
           return l
         })
       })
-    } catch { alert('Loi di chuyen the') }
+    } catch { alert('Lỗi di chuyển thẻ') }
     drag.current = { cardId: null, fromList: null, toList: null }
   }
   const handleDragOver = listId => { drag.current.toList = listId }
@@ -262,7 +262,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
         const newCard = res.data?.data || res.data
         setLists(prev => prev.map(l => l._id === targetListId ? { ...l, cards: [...l.cards, newCard] } : l))
       }
-    } catch { alert('Loi luu the') }
+    } catch { alert('Lỗi lưu thẻ') }
   }
 
   const handleDeleteCard = async (cardId, listId) => {
@@ -271,38 +271,38 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
       setLists(prev => prev.map(l =>
         l._id === listId ? { ...l, cards: l.cards.filter(c => (c._id||c.id) !== cardId) } : l
       ))
-    } catch { alert('Loi xoa the') }
+    } catch { alert('Lỗi xoá thẻ') }
   }
 
   const handleAddList = async () => {
     if (!canEdit) return
-    const title = window.prompt('Ten cot moi:')
+    const title = window.prompt('Tên cột mới:')
     if (!title?.trim() || !boardId) return
     try {
       const res     = await createListAPI(boardId, title.trim())
       const newList = res.data?.data || res.data
       setLists(prev => [...prev, { ...newList, cards: [] }])
-    } catch { alert('Loi tao cot') }
+    } catch { alert('Lỗi tạo cột') }
   }
 
   const handleEditList = async (list) => {
-    const title = window.prompt('Ten cot:', list.title)
+    const title = window.prompt('Tên cột:', list.title)
     if (!title?.trim()) return
     try {
       await updateListAPI(list._id, title.trim())
       setLists(prev => prev.map(l => l._id === list._id ? { ...l, title: title.trim() } : l))
-    } catch { alert('Loi doi ten cot') }
+    } catch { alert('Lỗi đổi tên cột') }
   }
 
   const handleDeleteList = async (listId) => {
-    if (!window.confirm('Xoa cot nay va tat ca the trong do?')) return
+    if (!window.confirm('Xoá cột này và tất cả thẻ bên trong?')) return
     try {
       await deleteListAPI(listId)
       setLists(prev => prev.filter(l => l._id !== listId))
-    } catch { alert('Loi xoa cot') }
+    } catch { alert('Lỗi xoá cột') }
   }
 
-  if (loading) return <div className="board-loading">Dang tai board...</div>
+  if (loading) return <div className="board-loading">Đang tải board...</div>
 
   return (
     <>
@@ -311,7 +311,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
           </svg>
-          Du an
+          Dự án
         </button>
         <span className="board-title">{projectName || 'Board'}</span>
 
@@ -320,7 +320,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
           background: canEdit ? '#f59e0b22' : '#3b82f622',
           color: canEdit ? '#f59e0b' : '#3b82f6',
           border: '1px solid ' + (canEdit ? '#f59e0b44' : '#3b82f644') }}>
-          {isAdmin ? 'Admin' : myProjectRole === 'pm' ? 'PM' : 'Thanh vien'}
+          {isAdmin ? 'Admin' : myProjectRole === 'pm' ? 'PM' : 'Thành viên'}
         </span>
 
         <div className="subheader-actions">
@@ -329,7 +329,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
             </svg>
-            Bo loc {filterCount > 0 && <span className="filter-badge">{filterCount}</span>}
+            Bộ lọc {filterCount > 0 && <span className="filter-badge">{filterCount}</span>}
           </button>
         </div>
       </div>
@@ -357,7 +357,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
-              Them danh sach
+              Thêm danh sách
             </button>
           )}
         </div>

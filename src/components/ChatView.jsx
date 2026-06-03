@@ -52,7 +52,7 @@ export default function ChatView({ projectId }) {
     const fetchMessages = () => {
       getMessagesAPI(activeChannel._id)
         .then(r => {
-          if (!cancelled) setMessages(r.data?.data || [])
+          if (!cancelled) setMessages(r.data?.data || []) 
         })
         .catch(() => {})
     }

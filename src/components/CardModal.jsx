@@ -3,14 +3,14 @@ import { LABEL_COLORS } from '../data'
 import CommentSection from './CommentSection'
 
 const PRIORITY_OPTIONS = [
-  { value: 'urgent', label: 'Khan cap' },
+  { value: 'urgent', label: 'Khẩn cấp' },
   { value: 'high',   label: 'Cao' },
-  { value: 'medium', label: 'Trung binh' },
-  { value: 'low',    label: 'Thap' },
+  { value: 'medium', label: 'Trung bình' },
+  { value: 'low',    label: 'Thấp' },
 ]
 const STATUS_OPTIONS = [
-  { value: 'todo',        label: 'Chua lam' },
-  { value: 'in_progress', label: 'Dang lam' },
+  { value: 'todo',        label: 'Chưa làm' },
+  { value: 'in_progress', label: 'Đang làm' },
   { value: 'done',        label: 'Xong' },
 ]
 
@@ -52,7 +52,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
   }
 
   const handleDelete = () => {
-    if (window.confirm('Xoa the nay?')) { onDelete(card._id || card.id, listId); onClose() }
+    if (window.confirm('Xoá thẻ này?')) { onDelete(card._id || card.id, listId); onClose() }
   }
 
   // Checklist
@@ -76,10 +76,10 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
   const removeAttachment = (id) => setAttachments(prev => prev.filter(a => a._id !== id))
 
   const tabs = [
-    { id: 'details',     label: 'Chi tiet' },
+    { id: 'details',     label: 'Chi tiết' },
     { id: 'checklist',   label: 'Checklist ' + (checklist.length ? checklist.filter(c=>c.completed).length + '/' + checklist.length : '') },
-    { id: 'attachments', label: 'Dinh kem' + (attachments.length ? ' (' + attachments.length + ')' : '') },
-    ...(!isNew && card?._id ? [{ id: 'comments', label: 'Binh luan' }] : []),
+    { id: 'attachments', label: 'Đính kèm' + (attachments.length ? ' (' + attachments.length + ')' : '') },
+    ...(!isNew && card?._id ? [{ id: 'comments', label: 'Bình luận' }] : []),
   ]
 
   const labelBg = LABEL_COLORS.find(l => l.id === form.labelColor)?.bg
@@ -88,7 +88,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal modal-wide">
         <div className="modal-header">
-          <h2 className="modal-title">{isNew ? 'Them the moi' : editable ? 'Chi tiet the' : 'Xem the'}</h2>
+          <h2 className="modal-title">{isNew ? 'Thêm thẻ mới' : editable ? 'Chi tiết thẻ' : 'Xem thẻ'}</h2>
           <button className="modal-close" onClick={onClose}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18M6 6l12 12"/>
@@ -116,16 +116,16 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
           {activeTab === 'details' && (
             <>
               <div className="modal-field">
-                <label className="modal-label">Tieu de *</label>
+                <label className="modal-label">Tiêu đề *</label>
                 <input className="modal-input" value={form.title}
                   onChange={e => set('title', e.target.value)}
-                  placeholder="Nhap tieu de..." autoFocus disabled={!editable} />
+                  placeholder="Nhập tiêu đề..." autoFocus disabled={!editable} />
               </div>
               <div className="modal-field">
-                <label className="modal-label">Mo ta</label>
+                <label className="modal-label">Mô tả</label>
                 <textarea className="modal-input modal-textarea" rows={3} value={form.description}
                   onChange={e => set('description', e.target.value)}
-                  placeholder="Mo ta chi tiet..." disabled={!editable} />
+                  placeholder="Mô tả chi tiết..." disabled={!editable} />
               </div>
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
@@ -141,14 +141,14 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
               </div>
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
-                  <label className="modal-label">Do uu tien</label>
+                  <label className="modal-label">Độ ưu tiên</label>
                   <select className="modal-input" value={form.priority}
                     onChange={e => set('priority', e.target.value)} disabled={!editable}>
                     {PRIORITY_OPTIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                   </select>
                 </div>
                 <div className="modal-field" style={{ flex: 1 }}>
-                  <label className="modal-label">Trang thai</label>
+                  <label className="modal-label">Trạng thái</label>
                   <select className="modal-input" value={form.status}
                     onChange={e => set('status', e.target.value)} disabled={!editable}>
                     {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -157,7 +157,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
               </div>
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
-                  <label className="modal-label">Cot</label>
+                  <label className="modal-label">Cột</label>
                   <select className="modal-input" value={form.listId}
                     onChange={e => set('listId', e.target.value)} disabled={!editable}>
                     {lists.map(l => <option key={l._id || l.id} value={l._id || l.id}>{l.title}</option>)}
@@ -171,7 +171,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
               </div>
               {editable && (
                 <div className="modal-field">
-                  <label className="modal-label">Mau nhan</label>
+                  <label className="modal-label">Màu nhãn</label>
                   <div className="label-picker">
                     {LABEL_COLORS.map(lc => (
                       <button key={lc.id}
@@ -191,7 +191,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12,
                     color: 'var(--text-muted)', marginBottom: 6 }}>
-                    <span>Tien do</span><span>{checkPct}%</span>
+                    <span>Tiến độ</span><span>{checkPct}%</span>
                   </div>
                   <div style={{ height: 6, background: 'var(--border)', borderRadius: 999 }}>
                     <div style={{ height: '100%', borderRadius: 999, width: checkPct + '%',
@@ -201,7 +201,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
                 {checklist.length === 0
-                  ? <div style={{ color: 'var(--text-faint)', fontSize: 13, textAlign: 'center', padding: 20 }}>Chua co muc nao</div>
+                  ? <div style={{ color: 'var(--text-faint)', fontSize: 13, textAlign: 'center', padding: 20 }}>Chưa có mục nào</div>
                   : checklist.map(item => (
                   <div key={item._id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
                     background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}>
@@ -223,8 +223,8 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
               {editable && (
                 <form onSubmit={addCheckItem} style={{ display: 'flex', gap: 8 }}>
                   <input className="modal-input" style={{ flex: 1, margin: 0 }}
-                    value={newItem} onChange={e => setNewItem(e.target.value)} placeholder="Them muc moi..." />
-                  <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}>Them</button>
+                    value={newItem} onChange={e => setNewItem(e.target.value)} placeholder="Thêm mục mới..." />
+                  <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}>Thêm</button>
                 </form>
               )}
             </div>
@@ -233,39 +233,121 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
           {/* ATTACHMENTS */}
           {activeTab === 'attachments' && (
             <div>
+              {/* Danh sách tệp đính kèm */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
                 {attachments.length === 0
-                  ? <div style={{ color: 'var(--text-faint)', fontSize: 13, textAlign: 'center', padding: 20 }}>Chua co tep dinh kem</div>
-                  : attachments.map(att => (
-                  <div key={att._id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                    background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8 }}>
-                    <div style={{ fontSize: 20 }}>clip</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{att.name}</div>
-                      <a href={att.url} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: 'var(--accent)', overflow: 'hidden',
-                          textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{att.url}</a>
+                  ? <div style={{ color: 'var(--text-faint)', fontSize: 13, textAlign: 'center', padding: 20 }}>
+                      Chưa có tệp đính kèm
                     </div>
-                    {editable && (
-                      <button onClick={() => removeAttachment(att._id)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-faint)' }}>x</button>
-                    )}
-                  </div>
-                ))}
+                  : attachments.map(att => {
+                    const icon = att.isLocal
+                      ? (att.mimeType?.startsWith('image/')        ? '🖼️'
+                        : att.mimeType?.includes('pdf')            ? '📄'
+                        : att.mimeType?.includes('word')           ? '📝'
+                        : att.mimeType?.includes('sheet') || att.mimeType?.includes('excel') ? '📊'
+                        : '📁')
+                      : '🔗'
+                    const sizeStr = att.size
+                      ? (att.size > 1024*1024
+                          ? (att.size/1024/1024).toFixed(1) + ' MB'
+                          : Math.round(att.size/1024) + ' KB')
+                      : ''
+                    return (
+                      <div key={att._id} style={{ display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '10px 12px', background: 'var(--card)',
+                        border: '1px solid var(--border)', borderRadius: 8 }}>
+                        <div style={{ fontSize: 22, flexShrink: 0 }}>{icon}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {att.name}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                            {sizeStr && <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>{sizeStr}</span>}
+                            {att.isLocal
+                              ? <span style={{ fontSize: 10, color: '#f59e0b' }}>📌 File local (chỉ trong phiên)</span>
+                              : <a href={att.url} target="_blank" rel="noopener noreferrer"
+                                  style={{ fontSize: 11, color: 'var(--accent)',
+                                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {att.url.length > 45 ? att.url.slice(0, 45) + '...' : att.url}
+                                </a>
+                            }
+                          </div>
+                        </div>
+                        {att.isLocal && att.mimeType?.startsWith('image/') && (
+                          <img src={att.url} alt={att.name}
+                            style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6,
+                              flexShrink: 0, border: '1px solid var(--border)' }} />
+                        )}
+                        {editable && (
+                          <button onClick={() => removeAttachment(att._id)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer',
+                              color: 'var(--text-faint)', fontSize: 16, padding: 4, flexShrink: 0 }}>✕</button>
+                        )}
+                      </div>
+                    )
+                  })
+                }
               </div>
+
               {editable && (
-                <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>Them duong dan tep</div>
-                  <form onSubmit={addAttachment} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <input className="modal-input" style={{ margin: 0 }} value={attName}
-                      onChange={e => setAttName(e.target.value)} placeholder="Ten tep (tuy chon)" />
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input className="modal-input" style={{ flex: 1, margin: 0 }} value={attUrl}
-                        onChange={e => setAttUrl(e.target.value)} placeholder="https://..." required />
-                      <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}>Them</button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {/* Upload file từ máy tính */}
+                  <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
+                      📁 Tải tệp từ máy tính
                     </div>
-                  </form>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+                      padding: '10px 14px', border: '2px dashed var(--border)', borderRadius: 8,
+                      color: 'var(--text-muted)', fontSize: 13 }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      Bấm để chọn tệp (ảnh, PDF, Word, Excel...)
+                      <input type="file" multiple style={{ display: 'none' }}
+                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar"
+                        onChange={e => {
+                          const files = Array.from(e.target.files || [])
+                          files.forEach(file => {
+                            const localUrl = URL.createObjectURL(file)
+                            setAttachments(prev => [...prev, {
+                              _id:      Date.now().toString() + Math.random().toString(36).slice(2),
+                              name:     file.name,
+                              url:      localUrl,
+                              size:     file.size,
+                              isLocal:  true,
+                              mimeType: file.type,
+                            }])
+                          })
+                          e.target.value = ''
+                        }}
+                      />
+                    </label>
+                    <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 6 }}>
+                      💡 File local chỉ lưu tạm trong phiên này. Dùng Google Drive để chia sẻ lâu dài.
+                    </div>
+                  </div>
+
+                  {/* Nhập URL */}
+                  <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
+                      🔗 Thêm đường dẫn URL
+                    </div>
+                    <form onSubmit={addAttachment} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <input className="modal-input" style={{ margin: 0 }} value={attName}
+                        onChange={e => setAttName(e.target.value)} placeholder="Tên tệp (tuỳ chọn)" />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input className="modal-input" style={{ flex: 1, margin: 0 }} value={attUrl}
+                          onChange={e => setAttUrl(e.target.value)} placeholder="https://drive.google.com/..." />
+                        <button type="submit" className="btn-primary" style={{ flexShrink: 0 }}
+                          disabled={!attUrl.trim()}>Thêm</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
@@ -279,12 +361,12 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
 
         <div className="modal-footer">
           {!isNew && editable && (
-            <button className="btn-danger" onClick={handleDelete}>Xoa the</button>
+            <button className="btn-danger" onClick={handleDelete}>Xoá thẻ</button>
           )}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <button className="btn-ghost" onClick={onClose}>{editable ? 'Huy' : 'Dong'}</button>
+            <button className="btn-ghost" onClick={onClose}>{editable ? 'Huỷ' : 'Đóng'}</button>
             {editable && (
-              <button className="btn-primary" onClick={handleSave}>{isNew ? 'Them the' : 'Luu'}</button>
+              <button className="btn-primary" onClick={handleSave}>{isNew ? 'Thêm thẻ' : 'Lưu'}</button>
             )}
           </div>
         </div>
