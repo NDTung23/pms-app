@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { LABEL_COLORS } from '../data'
 import CommentSection from './CommentSection'
+import { getSprintsAPI } from '../services/sprintService'
 
 const PRIORITY_OPTIONS = [
   { value: 'urgent', label: 'Khẩn cấp' },
@@ -14,40 +15,67 @@ const STATUS_OPTIONS = [
   { value: 'done',        label: 'Xong' },
 ]
 
-export default function CardModal({ card, listId, lists, onSave, onDelete, onClose, projectMembers, canEdit }) {
-  const isNew     = !card
-  const editable  = canEdit !== false
+export default function CardModal({ card, listId, lists, onSave, onDelete, onClose, projectMembers, canEdit, projectId }) {
+  const isNew    = !card
+  const editable = canEdit !== false
 
   const [form, setForm] = useState({
     title:       card?.title       || '',
     description: card?.description || '',
     labelColor:  card?.labelColor || card?.label || 'blue',
     tag:         card?.tag         || '',
-    dueDate:     card?.dueDate ? card.dueDate.slice(0,10) : '',
+    dueDate:     card?.dueDate ? card.dueDate.slice(0, 10) : '',
     priority:    card?.priority    || 'medium',
     status:      card?.status      || 'todo',
-    storyPoints: card?.storyPoints || 0,
+    storyPoints: card?.storyPoints ?? 0,
+    // Lấy sprint id dù backend trả về object hay string
+    sprint:      card?.sprint?._id || card?.sprint || '',
     listId,
   })
 
-  const [checklist,    setChecklist]    = useState(card?.checklist    || [])
-  const [attachments,  setAttachments]  = useState(card?.attachments  || [])
-  const [newItem,      setNewItem]      = useState('')
-  const [attUrl,       setAttUrl]       = useState('')
-  const [attName,      setAttName]      = useState('')
-  const [activeTab,    setActiveTab]    = useState('details')
+  const [sprints,     setSprints]     = useState([])
+  const [sprintLoad,  setSprintLoad]  = useState(false)
+  const [checklist,   setChecklist]   = useState(card?.checklist   || [])
+  const [attachments, setAttachments] = useState(card?.attachments || [])
+  const [newItem,     setNewItem]     = useState('')
+  const [attUrl,      setAttUrl]      = useState('')
+  const [attName,     setAttName]     = useState('')
+  const [activeTab,   setActiveTab]   = useState('details')
 
+  // Đóng modal bằng Escape
   useEffect(() => {
     const h = e => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
   }, [onClose])
 
+  // Load danh sách sprint để hiển thị dropdown
+  useEffect(() => {
+    if (!projectId) return
+    setSprintLoad(true)
+    getSprintsAPI(projectId)
+      .then(res => {
+        const list = res.data?.data || res.data || []
+        // Chỉ hiện sprint chưa đóng để gán thẻ mới; sprint đã đóng vẫn giữ nếu thẻ đang gán
+        setSprints(list)
+      })
+      .catch(() => setSprints([]))
+      .finally(() => setSprintLoad(false))
+  }, [projectId])
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const handleSave = () => {
     if (!form.title.trim()) return
-    onSave({ ...card, ...form, checklist, attachments }, form.listId)
+    // Gửi sprint: nếu chọn '' thì gửi null để backend xoá liên kết
+    const payload = {
+      ...card,
+      ...form,
+      sprint: form.sprint || null,
+      checklist,
+      attachments,
+    }
+    onSave(payload, form.listId)
     onClose()
   }
 
@@ -62,9 +90,11 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
     setChecklist(prev => [...prev, { _id: Date.now().toString(), text: newItem.trim(), completed: false }])
     setNewItem('')
   }
-  const toggleCheck  = (id) => setChecklist(prev => prev.map(c => c._id === id ? { ...c, completed: !c.completed } : c))
-  const removeCheck  = (id) => setChecklist(prev => prev.filter(c => c._id !== id))
-  const checkPct     = checklist.length > 0 ? Math.round(checklist.filter(c => c.completed).length / checklist.length * 100) : 0
+  const toggleCheck = (id) => setChecklist(prev => prev.map(c => c._id === id ? { ...c, completed: !c.completed } : c))
+  const removeCheck = (id) => setChecklist(prev => prev.filter(c => c._id !== id))
+  const checkPct    = checklist.length > 0
+    ? Math.round(checklist.filter(c => c.completed).length / checklist.length * 100)
+    : 0
 
   // Attachments
   const addAttachment = (e) => {
@@ -77,8 +107,8 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
 
   const tabs = [
     { id: 'details',     label: 'Chi tiết' },
-    { id: 'checklist',   label: 'Checklist ' + (checklist.length ? checklist.filter(c=>c.completed).length + '/' + checklist.length : '') },
-    { id: 'attachments', label: 'Đính kèm' + (attachments.length ? ' (' + attachments.length + ')' : '') },
+    { id: 'checklist',   label: 'Checklist' + (checklist.length ? ' ' + checklist.filter(c => c.completed).length + '/' + checklist.length : '') },
+    { id: 'attachments', label: 'Đính kèm'  + (attachments.length ? ' (' + attachments.length + ')' : '') },
     ...(!isNew && card?._id ? [{ id: 'comments', label: 'Bình luận' }] : []),
   ]
 
@@ -112,7 +142,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
 
         <div className="modal-body" style={{ minHeight: 300 }}>
 
-          {/* DETAILS */}
+          {/* ── DETAILS ─────────────────────────────────── */}
           {activeTab === 'details' && (
             <>
               <div className="modal-field">
@@ -121,12 +151,14 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                   onChange={e => set('title', e.target.value)}
                   placeholder="Nhập tiêu đề..." autoFocus disabled={!editable} />
               </div>
+
               <div className="modal-field">
                 <label className="modal-label">Mô tả</label>
                 <textarea className="modal-input modal-textarea" rows={3} value={form.description}
                   onChange={e => set('description', e.target.value)}
                   placeholder="Mô tả chi tiết..." disabled={!editable} />
               </div>
+
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Tag</label>
@@ -139,6 +171,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                     onChange={e => set('dueDate', e.target.value)} disabled={!editable} />
                 </div>
               </div>
+
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Độ ưu tiên</label>
@@ -155,6 +188,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                   </select>
                 </div>
               </div>
+
               <div className="modal-row">
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Cột</label>
@@ -166,9 +200,28 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                 <div className="modal-field" style={{ flex: 1 }}>
                   <label className="modal-label">Story Points</label>
                   <input className="modal-input" type="number" min="0" value={form.storyPoints}
-                    onChange={e => set('storyPoints', parseInt(e.target.value)||0)} disabled={!editable} />
+                    onChange={e => set('storyPoints', parseInt(e.target.value) || 0)} disabled={!editable} />
                 </div>
               </div>
+
+              {/* ── SPRINT DROPDOWN (mới thêm) ── */}
+              <div className="modal-field">
+                <label className="modal-label">Sprint</label>
+                <select className="modal-input" value={form.sprint}
+                  onChange={e => set('sprint', e.target.value)} disabled={!editable || sprintLoad}>
+                  <option value="">— Không gán sprint —</option>
+                  {sprints.map(s => (
+                    <option key={s._id} value={s._id}>
+                      {s.title}
+                      {s.status === 'closed' ? ' (Đã đóng)' : s.status === 'active' ? ' 🚀' : ' 📋'}
+                    </option>
+                  ))}
+                </select>
+                {sprintLoad && (
+                  <span style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>Đang tải sprint...</span>
+                )}
+              </div>
+
               {editable && (
                 <div className="modal-field">
                   <label className="modal-label">Màu nhãn</label>
@@ -184,7 +237,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
             </>
           )}
 
-          {/* CHECKLIST */}
+          {/* ── CHECKLIST ───────────────────────────────── */}
           {activeTab === 'checklist' && (
             <div>
               {checklist.length > 0 && (
@@ -214,7 +267,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                     {editable && (
                       <button onClick={() => removeCheck(item._id)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-faint)', fontSize: 14 }}>
-                        x
+                        ✕
                       </button>
                     )}
                   </div>
@@ -230,10 +283,9 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
             </div>
           )}
 
-          {/* ATTACHMENTS */}
+          {/* ── ATTACHMENTS ─────────────────────────────── */}
           {activeTab === 'attachments' && (
             <div>
-              {/* Danh sách tệp đính kèm */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
                 {attachments.length === 0
                   ? <div style={{ color: 'var(--text-faint)', fontSize: 13, textAlign: 'center', padding: 20 }}>
@@ -248,9 +300,9 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                         : '📁')
                       : '🔗'
                     const sizeStr = att.size
-                      ? (att.size > 1024*1024
-                          ? (att.size/1024/1024).toFixed(1) + ' MB'
-                          : Math.round(att.size/1024) + ' KB')
+                      ? (att.size > 1024 * 1024
+                          ? (att.size / 1024 / 1024).toFixed(1) + ' MB'
+                          : Math.round(att.size / 1024) + ' KB')
                       : ''
                     return (
                       <div key={att._id} style={{ display: 'flex', alignItems: 'center', gap: 10,
@@ -292,7 +344,6 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
 
               {editable && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {/* Upload file từ máy tính */}
                   <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
                       📁 Tải tệp từ máy tính
@@ -332,7 +383,6 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
                     </div>
                   </div>
 
-                  {/* Nhập URL */}
                   <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
                       🔗 Thêm đường dẫn URL
@@ -353,7 +403,7 @@ export default function CardModal({ card, listId, lists, onSave, onDelete, onClo
             </div>
           )}
 
-          {/* COMMENTS */}
+          {/* ── COMMENTS ────────────────────────────────── */}
           {activeTab === 'comments' && !isNew && card?._id && (
             <CommentSection cardId={card._id} projectMembers={projectMembers} />
           )}

@@ -373,6 +373,7 @@ export default function BoardView({ projectId, projectName, onBackToProjects }) 
           onClose={() => setModal(null)}
           projectMembers={projectMembers}
           canEdit={canEdit || !modal.card}
+          projectId={projectId}
         />
       )}
     </>
